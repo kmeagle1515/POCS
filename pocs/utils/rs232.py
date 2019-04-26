@@ -210,6 +210,7 @@ class SerialData(object):
         """Write data of type bytes."""
         assert self.ser
         assert self.ser.isOpen()
+        self.ser.reset_input_buffer()
         return self.ser.write(data)
 
     def write(self, value):
@@ -239,6 +240,7 @@ class SerialData(object):
         """
         assert self.ser
         assert self.ser.isOpen()
+        self.ser.reset_output_buffer()
 
         if retry_limit is None:
             retry_limit = self.retry_limit
@@ -284,24 +286,6 @@ class SerialData(object):
             if data:
                 return (ts, data)
         return None
-
-    def reset_input_buffer(self):
-        """Clear buffered data from connected port/device.
-
-        Note that Wilfred reports that the input from an Arduino can seriously lag behind
-        realtime (e.g. 10 seconds), and that clear_buffer may exist for that reason (i.e. toss
-        out any buffered input from a device, and then read the next full line, which likely
-        requires tossing out a fragment of a line).
-        """
-        self.ser.reset_input_buffer()
-
-    def reset_output_buffer(self):
-        """Clear buffered data from connected port/device.
-
-        This is continued with respect to the above block which was done by james synge.
-        Does the work of clearing the port's output buffer. This reduces delay.
-        """
-        self.ser.reset_output_buffer()
 
     def __del__(self):
         """Close the serial device on delete.
