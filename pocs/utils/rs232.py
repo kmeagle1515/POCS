@@ -207,7 +207,7 @@ class SerialData(object):
             raise BadSerialConnection(msg="SerialData.disconnect failed for {}".format(self.name))
 
     def write_bytes(self, data):
-        """Write data of type bytes."""
+        """Write data of type bytes. Resets input buffer of port before writing to it."""
         assert self.ser
         assert self.ser.isOpen()
         self.ser.reset_input_buffer()
@@ -222,7 +222,7 @@ class SerialData(object):
 
         If a read timeout is set on self.ser, this may return less characters than requested.
         With no timeout it will block until the requested number of bytes is read.
-
+        Resets output buffer before reading from serial port. 
         Args:
             size: Number of bytes to read.
         Returns:
@@ -230,6 +230,7 @@ class SerialData(object):
         """
         assert self.ser
         assert self.ser.isOpen()
+        self.ser.reset_output_buffer()
         return self.ser.read(size=size)
 
     def read(self, retry_limit=None, retry_delay=None):
@@ -240,7 +241,6 @@ class SerialData(object):
         """
         assert self.ser
         assert self.ser.isOpen()
-        self.ser.reset_output_buffer()
 
         if retry_limit is None:
             retry_limit = self.retry_limit
